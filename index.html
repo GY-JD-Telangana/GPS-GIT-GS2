@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Form with GPS</title>
+    <script>
+        // Function to detect if the device is mobile
+        function isMobileDevice() {
+            return /Mobi|Android/i.test(navigator.userAgent);
+        }
+
+        // Function to get GPS location
+        function getLocation() {
+            if (isMobileDevice()) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            } else {
+                alert("This form is only accessible on mobile devices.");
+                document.getElementById("submit-button").disabled = true; // Disable form submission on desktop
+            }
+        }
+
+        // Function to display GPS coordinates in form fields
+        function showPosition(position) {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+        }
+
+        // Function to submit the form data to Google Sheets
+        function submitForm() {
+            const data = {
+                name: document.getElementById("name").value,
+                locationInfo: document.getElementById("location-info").value,
+                question1: document.querySelector('input[name="question1"]:checked').value,
+                question2: document.querySelector('input[name="question2"]:checked').value,
+                dropdown1: document.getElementById("dropdown1").value,
+                dropdown2: document.getElementById("dropdown2").value,
+                latitude: document.getElementById("latitude").value,
+                longitude: document.getElementById("longitude").value
+            };
+
+            const url = "YOUR_GOOGLE_SCRIPT_URL"; // Replace with your Google Apps Script URL
+
+            fetch(url, {
+                method: "POST",
+                mode: "no-cors", // 'no-cors' allows cross-origin requests without CORS headers
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            }).then(response => {
+                alert("Form submitted successfully!");
+            }).catch(error => {
+                console.error("Error submitting form:", error);
+            });
+        }
+
+        // Call getLocation() on page load
+        window.onload = getLocation;
+    </script>
+</head>
+
+<body>
+    <form onsubmit="event.preventDefault(); submitForm();">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="location-info">Location Information:</label>
+        <input type="text" id="location-info" name="location-info" required><br><br>
+
+        <label>Question 1:</label><br>
+        <input type="radio" id="q1a" name="question1" value="Option 1" required>
+        <label for="q1a">Option 1</label><br>
+        <input type="radio" id="q1b" name="question1" value="Option 2">
+        <label for="q1b">Option 2</label><br><br>
+
+        <label>Question 2:</label><br>
+        <input type="radio" id="q2a" name="question2" value="Option A" required>
+        <label for="q2a">Option A</label><br>
+        <input type="radio" id="q2b" name="question2" value="Option B">
+        <label for="q2b">Option B</label><br><br>
+
+        <label for="dropdown1">Dropdown 1:</label>
+        <select id="dropdown1" name="dropdown1" required>
+            <option value="Select">Select</option>
+            <option value="Choice 1">Choice 1</option>
+            <option value="Choice 2">Choice 2</option>
+        </select><br><br>
+
+        <label for="dropdown2">Dropdown 2:</label>
+        <select id="dropdown2" name="dropdown2" required>
+            <option value="Select">Select</option>
+            <option value="Choice A">Choice A</option>
+            <option value="Choice B">Choice B</option>
+        </select><br><br>
+
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" name="latitude" readonly><br><br>
+
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" name="longitude" readonly><br><br>
+
+        <input type="submit" id="submit-button" value="Submit">
+    </form>
+</body>
+
+</html>
