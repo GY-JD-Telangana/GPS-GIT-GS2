@@ -1,10 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Integrated Form with GPS</title>
+    <style>
+        body {
+            background-color: grey;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+    </style>
     <script>
         // Function to detect if the device is mobile
         function isMobileDevice() {
@@ -13,15 +57,10 @@
 
         // Function to get GPS location
         function getLocation() {
-            if (isMobileDevice()) {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(showPosition);
-                } else {
-                    alert("Geolocation is not supported by this browser.");
-                }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
-                alert("This form is only accessible on mobile devices.");
-                document.getElementById("submit-button").disabled = true; // Disable form submission on desktop
+                alert("Geolocation is not supported by this browser.");
             }
         }
 
@@ -29,6 +68,24 @@
         function showPosition(position) {
             document.getElementById("latitude").value = position.coords.latitude;
             document.getElementById("longitude").value = position.coords.longitude;
+        }
+
+        // Function to handle geolocation errors
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
         }
 
         // Function to submit the form data to Google Sheets
@@ -44,7 +101,7 @@
                 longitude: document.getElementById("longitude").value
             };
 
-            const url = "YOUR_GOOGLE_SCRIPT_URL"; // Replace with your Google Apps Script URL
+            const url = "https://script.google.com/macros/s/AKfycbwi0Iv0PYu4IPxcvczzcfAdabt-ZMQZ8u1_hnWVa0_b4R4EdU-OSjxFTFoaRG1kV7p6/exec"; // Replace with your Google Apps Script URL
 
             fetch(url, {
                 method: "POST",
@@ -64,49 +121,48 @@
         window.onload = getLocation;
     </script>
 </head>
-
 <body>
     <form onsubmit="event.preventDefault(); submitForm();">
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
+        <input type="text" id="name" name="name" required>
 
         <label for="location-info">Location Information:</label>
-        <input type="text" id="location-info" name="location-info" required><br><br>
+        <input type="text" id="location-info" name="location-info" required>
 
-        <label>Question 1:</label><br>
+        <label>Question 1:</label>
         <input type="radio" id="q1a" name="question1" value="Option 1" required>
-        <label for="q1a">Option 1</label><br>
+        <label for="q1a">Option 1</label>
         <input type="radio" id="q1b" name="question1" value="Option 2">
-        <label for="q1b">Option 2</label><br><br>
+        <label for="q1b">Option 2</label>
 
-        <label>Question 2:</label><br>
+        <label>Question 2:</label>
         <input type="radio" id="q2a" name="question2" value="Option A" required>
-        <label for="q2a">Option A</label><br>
+        <label for="q2a">Option A</label>
         <input type="radio" id="q2b" name="question2" value="Option B">
-        <label for="q2b">Option B</label><br><br>
+        <label for="q2b">Option B</label>
 
         <label for="dropdown1">Dropdown 1:</label>
         <select id="dropdown1" name="dropdown1" required>
-            <option value="Select">Select</option>
+            <option value="">Select</option>
             <option value="Choice 1">Choice 1</option>
             <option value="Choice 2">Choice 2</option>
-        </select><br><br>
+        </select>
 
         <label for="dropdown2">Dropdown 2:</label>
         <select id="dropdown2" name="dropdown2" required>
-            <option value="Select">Select</option>
+            <option value="">Select</option>
             <option value="Choice A">Choice A</option>
             <option value="Choice B">Choice B</option>
-        </select><br><br>
+        </select>
 
         <label for="latitude">Latitude:</label>
-        <input type="text" id="latitude" name="latitude" readonly><br><br>
+        <input type="text" id="latitude" name="latitude" readonly>
 
         <label for="longitude">Longitude:</label>
-        <input type="text" id="longitude" name="longitude" readonly><br><br>
+        <input type="text" id="longitude" name="longitude" readonly>
 
         <input type="submit" id="submit-button" value="Submit">
     </form>
 </body>
-
 </html>
+    
